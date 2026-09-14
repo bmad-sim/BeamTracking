@@ -514,13 +514,8 @@ end
   E_ref = mc2/tilde_m/beta_0
   a = gyromagnetic_anomaly(bunch.species)
   radiation_params = ifelse(tm.radiation_damping_on, (q, mc2, E_ref), nothing)
-  params = (radiation_params, beta_0, gamsqr_0, tilde_m, a, omega, t_ref, E0_normalized, 0, Val{false}(), SA[0], SA[0], SA[0])
-  if isprimitivetype(eltype(bunch.coords.v)) && tm.radiation_fluctuations_on
-    photon_params = (BeamTracking.cavity!, get_backend(bunch.coords.v), q, mc2, E_ref, omega, t_ref, E0_normalized, SA[0], SA[0], SA[0])
-  else
-    photon_params = nothing
-  end
-  return push(kc, integration_launcher(BeamTracking.cavity!, params, photon_params, tm, nothing, L))
+  params = (radiation_params, beta_0, gamsqr_0, tilde_m, a, omega, t_ref, E0_normalized, 0, Val{false}(), SA[], SA[], SA[])
+  return push(kc, integration_launcher(BeamTracking.cavity!, params, nothing, tm, nothing, L))
 end
 
 @inline function thick_bmultipole_rf(tm::Union{Symplectic,DriftKick,SolenoidKick}, kc, p_over_q_ref, bunch, bm, rfparams, beamlineparams, L)
@@ -569,7 +564,7 @@ end
   radiation_params = ifelse(tm.radiation_damping_on, (q, mc2, E_ref), nothing)
   params = (radiation_params, beta_0, gamsqr_0, tilde_m, a, omega, t_ref, E0_normalized, Ksol, Val{!isnothing(Ksol)}(), mm, kn, ks)
   if isprimitivetype(eltype(bunch.coords.v)) && tm.radiation_fluctuations_on
-    photon_params = (BeamTracking.cavity!, get_backend(bunch.coords.v), q, mc2, E_ref, omega, t_ref, E0_normalized, mm, kn, ks)
+    photon_params = (get_backend(bunch.coords.v), q, mc2, E_ref, 0, 0, mm, kn, ks)
   else
     photon_params = nothing
   end

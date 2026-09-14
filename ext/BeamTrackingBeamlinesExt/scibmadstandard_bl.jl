@@ -9,7 +9,7 @@ end
 # Note: for exact transformations, use Symplectic order 2 because higher orders won't increase accuracy
 @inline drift(tm::SciBmadStandard, kc, p_over_q_ref, bunch, L) = drift(sbs2s(tm; order=2), kc, p_over_q_ref, bunch, L) 
 
-@inline pure_rf(tm::SciBmadStandard, kc, p_over_q_ref, bunch, rfparams, beamlineparams, L)                = pure_rf(sbs2s(tm), kc, p_over_q_ref, bunch, rfparams, beamlineparams, L)                        
+@inline pure_rf(tm::SciBmadStandard, kc, p_over_q_ref, bunch, rfparams, beamlineparams, L)                = pure_rf(sbs2s(tm; order=2), kc, p_over_q_ref, bunch, rfparams, beamlineparams, L)                        
 @inline pure_bsolenoid(tm::SciBmadStandard, kc, p_over_q_ref, bunch, bm0, L)                              = pure_bsolenoid(sbs2s(tm; order=2), kc, p_over_q_ref, bunch, bm0, L)                             
 @inline bsolenoid(tm::SciBmadStandard, kc, p_over_q_ref, bunch, bmultipoleparams, L)                      = bsolenoid(sbs2s(tm), kc, p_over_q_ref, bunch, bmultipoleparams, L)                     
 @inline pure_bdipole(tm::SciBmadStandard, kc, p_over_q_ref, bunch, bm1, L)                                = pure_bdipole(sbs2s(tm; order=2), kc, p_over_q_ref, bunch, bm1, L)                               

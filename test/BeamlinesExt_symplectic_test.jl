@@ -504,7 +504,7 @@
     bl = Beamline([ele], p_over_q_ref=p_over_q_ref, species_ref=Species("electron"))
     track!(b0, bl)
     v_expected = [0.079780166737775 0.019787730199769354 0.16948903713233676 0.03953117005833582 0.048191102445404935 0.248390318651432]
-    q_expected = [0.9999944946679133 0.0029715369848312525 -0.0014766860913564951 -8.331298116986673e-9]
+    q_expected = [0.9999998246254935 -0.0005658409467390791 0.00012504995994267427 -0.00012221093547657135]
     @test b0.coords.v ≈ v_expected
     @test b0.coords.q ≈ q_expected
 
@@ -517,7 +517,7 @@
     bl = Beamline([ele_drift, ele], p_over_q_ref=p_over_q_ref, species_ref=Species("electron"))
     track!(b0, bl.line[2])
     v_expected = [0.079780166737775 0.019787730199769354 0.16948903713233676 0.03953117005833582 0.048191102445404935 0.248390318651432]
-    q_expected = [0.9999944946679133 0.0029715369848312525 -0.0014766860913564951 -8.331298116986673e-9]
+    q_expected = [0.9999998246254935 -0.0005658409467390791 0.00012504995994267427 -0.00012221093547657135]
     @test b0.coords.v ≈ v_expected
     @test b0.coords.q ≈ q_expected
 
@@ -594,7 +594,7 @@
     @test b0.coords.v ≈ v_expected
 
     # Cavity-solenoid with deterministic radiation:
-    ele = LineElement(L=0.5, Ksol=0.3, rf_frequency=1e8,  zero_phase=PhaseRef.AboveTransition, voltage=-0.25e6, tracking_method=Symplectic(order=4, radiation_damping_on=true))
+    ele = LineElement(L=0.5, Ksol=0.3, rf_frequency=1e8, zero_phase=PhaseRef.AboveTransition, voltage=-0.25e6, tracking_method=Symplectic(order=4, radiation_damping_on=true))
     v = [0.01 0.02 0.03 0.04 0.05 0.06]
     b0 = Bunch(v, p_over_q_ref=-18e9/C_LIGHT, species=Species("electron"))
     bl = Beamline([ele], p_over_q_ref=-18e9/C_LIGHT, species_ref=Species("electron"))

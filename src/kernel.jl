@@ -18,7 +18,13 @@ end
 num_lower(::Type, t) = t
 num_lower(::Type{T}, t::Float64) where {T<:Union{Float32,Float16}} = T(t)
 num_lower(::Type{T}, t::SArray{S,Float64}) where {T<:Union{Float32,Float16},S} = T.(t)
-num_lower(::Type{T}, t::S) where {T<:Union{Float32,Float16},S<:Tuple} = map(ti->num_lower(T, ti), t)
+# Index each tuple member directly so nested field parameters remain inferable
+# on Julia 1.10, where recursive map calls can widen the conversion type.
+@generated function num_lower(::Type{T}, t::S) where {T<:Union{Float32,Float16},S<:Tuple}
+  return Expr(:tuple, [:(num_lower(T, getfield(t, $i))) for i in 1:fieldcount(S)]...)
+end
+@inline num_lower(::Type{T}, nt::NamedTuple{names}) where {T<:Union{Float32,Float16},names} =
+  NamedTuple{names}(num_lower(T, Tuple(nt)))
 function num_lower(::Type{T}, tf::TimeFunction) where {T<:Union{Float32,Float16}}
   S = typeof(tf(0))
   if S != T
@@ -38,6 +44,11 @@ function num_lower(::Type{T}, b::BatchParam) where {T<:Union{Float32,Float16}}
   else
     return b
   end
+end
+
+# Kernel calls lower batch wrappers before numeric conversion in _push.
+@inline function num_lower(::Type{T}, b::_LoweredBatchParam{N}) where {T<:Union{Float32,Float16},N}
+  return eltype(b.batch) == T ? b : _LoweredBatchParam{N}(T.(b.batch))
 end
 
 # In case KernelCall contains batch GPU array

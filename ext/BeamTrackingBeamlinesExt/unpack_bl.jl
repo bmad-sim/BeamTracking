@@ -28,6 +28,10 @@ function _track!(
   fpp = deval(ele.FourPotentialParams, context)
   em = deval(ele.EMultipoleParams, context)
 
+  if tm isa RungeKutta
+    tm = unpack_runge_kutta(tm, context, scalar_params)
+  end
+
   if scalar_params
     L = scalarize(L)
     ap = scalarize(ap)
@@ -148,7 +152,12 @@ function universal!(
     kc = @inline(ibs_kick(tm, kc, p_over_q_ref, bunch, bp, L))
   end
 
-  if isactive(mapparams)    
+  if tm isa RungeKutta
+    kc = @inline(runge_kutta_body(tm, kc, p_over_q_ref, bunch, bendparams, bmultipoleparams,
+                                  patchparams, rfparams, mapparams, fourpotentialparams,
+                                  emultipoleparams, L))
+
+  elseif isactive(mapparams)    
     if isactive(bendparams)
       error("Tracking through a LineElement containing both MapParams and BendParams not currently defined")
     elseif isactive(bmultipoleparams)

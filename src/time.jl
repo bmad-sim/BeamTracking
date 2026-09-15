@@ -120,11 +120,14 @@ time_lower(tp) = tp
 # We can use map on the CPU, but not the GPU. This step of time_lower-ing is on
 # the CPU and we are already type unstable here anyways, so we should do this.
 time_lower(tp::T) where {T<:Tuple} = map(ti->time_lower(ti), tp)
+@inline time_lower(nt::NamedTuple{names}) where {names} =
+  NamedTuple{names}(time_lower(Tuple(nt)))
 
 # Arrays MUST be converted into tuples, for SIMD
 time_lower(tp::SArray{N,TimeDependentParam}) where {N} = time_lower(Tuple(tp))
 static_timecheck(tp) = false
 static_timecheck(::TimeFunction) = true
+@inline static_timecheck(nt::NamedTuple) = static_timecheck(Tuple(nt))
 @unroll function static_timecheck(t::Tuple)
   @unroll for ti in t
     if static_timecheck(ti)
@@ -133,3 +136,6 @@ static_timecheck(::TimeFunction) = true
   end
   return false
 end
+
+@inline teval(nt::NamedTuple{names}, t) where {names} =
+  NamedTuple{names}(teval(Tuple(nt), t))

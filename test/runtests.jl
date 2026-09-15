@@ -211,6 +211,7 @@ end
 # this file directly -- every group runs, exactly as before.
 const TEST_GROUPS = Dict(
   "core" => ["miscellaneous_test.jl",
+             "FieldSources_test.jl",
              "sagan_cavity_tracking_test.jl",
              "BeamlinesExt_test.jl",
              "alignment_tracking_test.jl",
@@ -219,7 +220,8 @@ const TEST_GROUPS = Dict(
              "IntegrationTracking_test.jl",
              "collective_test.jl",
              "callback_test.jl",
-             "ImplicitTracking_test.jl"],
+             "ImplicitTracking_test.jl",
+             "RungeKuttaTracking_test.jl"],
   # By far the longest-running group; kept on its own so it does not set the
   # wall-clock floor for everything else.
   "symplectic" => ["BeamlinesExt_symplectic_test.jl"],

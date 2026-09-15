@@ -13,6 +13,12 @@ function find_steps(tm::BeamTracking.AbstractSymplectic, L)
 end
 find_steps(::Any, L) = (1, L)
 
+function find_steps(tm::RungeKutta, L)
+  L > 0 || error("RungeKutta tracking requires a positive element length")
+  n_steps = tm.n_steps > 0 ? tm.n_steps : ceil(Int, L / tm.ds_step)
+  return n_steps, L / n_steps
+end
+
 # Temporary disgusting solution for callbacks - Symplectic
 @generated function compute_dt_ref(s, ker::K, params) where {K}
   idx = find_m_tilde(ker)

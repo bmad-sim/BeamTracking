@@ -120,6 +120,51 @@ no loss in computing both but benefit of branchless.
   return np, sp
 end
 
+"""
+    get_physical_strengths(bm, L, p_over_q_ref) -> Bn, Bs
+
+Get non-integrated magnetic multipole coefficients in physical units. Normal
+and skew coefficients of order `m` are returned in T/m^m. Physical source
+values are used directly. Normalized source values are converted once while
+preparing the tracking kernel.
+"""
+@inline function get_physical_strengths(bm, L, p_over_q_ref)
+  bmn = getfield(bm, :n)
+  bms = getfield(bm, :s)
+  bmtilt = getfield(bm, :tilt)
+  normalized = getfield(bm, :normalized)
+
+  if isconcretetype(eltype(bmn))
+    T = promote_type(eltype(bmn), typeof(L))
+  elseif bmn isa AbstractArray
+    T = promote_type(
+      reduce(promote_type, typeof.(bmn)),
+      reduce(promote_type, typeof.(bms)),
+      reduce(promote_type, typeof.(bmtilt)),
+      typeof(L),
+    )
+  else
+    T = promote_type(typeof(bmn), typeof(bms), typeof(bmtilt), typeof(L))
+  end
+  if any(normalized)
+    T = promote_type(T, typeof(p_over_q_ref))
+  end
+
+  n = T.(make_static(bmn))
+  skew = T.(make_static(bms))
+  tilt = T.(make_static(bmtilt))
+  order = getfield(bm, :order)
+  integrated = getfield(bm, :integrated)
+
+  np = @. n*cos(order*tilt) + skew*sin(order*tilt)
+  sp = @. -n*sin(order*tilt) + skew*cos(order*tilt)
+  np = @. ifelse(normalized, np*p_over_q_ref, np)
+  sp = @. ifelse(normalized, sp*p_over_q_ref, sp)
+  np = @. ifelse(integrated, np/L, np)
+  sp = @. ifelse(integrated, sp/L, sp)
+  return np, sp
+end
+
 @inline function get_integrated_strengths(bm, L, p_over_q_ref)
   bmn = getfield(bm, :n)
   bms = getfield(bm, :s)

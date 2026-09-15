@@ -308,11 +308,14 @@ end
 # We can use map on the CPU, but not the GPU. This step of batch_lower-ing is on 
 # the CPU and we are already type unstable here anyways, so we should do this.
 batch_lower(bp::T) where {T<:Tuple} = map(bi->batch_lower(bi), bp)
+@inline batch_lower(nt::NamedTuple{names}) where {names} =
+  NamedTuple{names}(batch_lower(Tuple(nt)))
 
 # Arrays MUST be converted into tuples, for SIMD
 batch_lower(bp::SArray{N,BatchParam}) where {N} = batch_lower(Tuple(bp))
 static_batchcheck(bp) = false
 static_batchcheck(::_LoweredBatchParam) = true
+@inline static_batchcheck(nt::NamedTuple) = static_batchcheck(Tuple(nt))
 @unroll function static_batchcheck(t::Tuple)
   @unroll for ti in t
     if static_batchcheck(ti)
@@ -321,6 +324,9 @@ static_batchcheck(::_LoweredBatchParam) = true
   end
   return false
 end
+
+@inline beval(nt::NamedTuple{names}, i) where {names} =
+  NamedTuple{names}(beval(Tuple(nt), i))
 
 @inline beval(b::_LoweredBatchParam{B}, i) where {B} = b.batch[mod1(i, B)]
 
